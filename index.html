@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Sueño Dorado - Ver mi Cartón</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #004C21, #00672D, green, #14974D, black);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .titulo {
+            font-size: 70px; /* Reducido de 100px a 50px */
+            font-family: 'cursive', Courier, monospace;
+            margin-bottom: 15px;
+            text-align: center;
+            color: gold;
+            animation: flotar 3s ease-in-out infinite;
+            text-shadow: 1px 1px 0 black, -1px -1px 0 black, 
+                        1px -1px 0 white, -1px 1px 0 white;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 100%;
+        }
+        .titulo:focus {
+            outline: none; /* Evita el borde al editar */
+        }
+        @keyframes flotar {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); } /* Reducido de -10px */
+            100% { transform: translateY(0); }
+        }
+        .buscador {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .buscador input {
+            margin-right: 10px;
+            padding: 5px;
+            width: 300px; /* Reducido de 150px */
+            font-size: 14px; /* Reducido de 16px */
+            border-radius: 5px;
+            border: 2px solid white;
+        }
+        .buscador button {
+            padding: 5px 10px; /* Ajustado */
+            font-size: 14px; /* Reducido de 16px */
+            background-color: gold;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .buscador button:hover {
+            background-color: #FFD700;
+        }
+        .carton {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+            width: 250px; /* Reducido de 300px */
+            border: 4px solid white;
+            background: linear-gradient(to bottom, red, orange, gold, orange);
+            border-radius: 10px;
+            animation: flotar 3s ease-in-out infinite;
+            margin-top: 15px;
+        }
+        .titulo-carton, .encabezado {
+            grid-column: span 5;
+            text-align: center;
+            background: linear-gradient(to bottom, red, orange, orange, gold, gold, gold);
+            border-radius: 7px;
+        }
+        .titulo-carton {
+            font-size: 20px; /* Reducido de 30px */
+            color: #BEBEBE;
+            font-family: 'cursive', Courier, monospace;
+            text-shadow: 1px 1px 0 black, -1px -1px 0 black, 
+                        1px -1px 0 black, -1px 1px 0 white;
+            margin-bottom: 2px;
+        }
+        .encabezado {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            font-weight: bold;
+            font-size: 16px; /* Reducido de 18px */
+        }
+        .letra {
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 25px; /* Reducido de 32px */
+            font-size: 16px; /* Reducido de 20px */
+            background: linear-gradient(to bottom, red, orange, gold);
+            text-shadow: 1px 1px 0 black, -1px -1px 0 black, 
+                        1px -1px 0 white, -1px 1px 0 white;
+        }
+        .celda {
+            border: 2px solid #000; /* Reducido de 2.5px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 30px; /* Reducido de 40px */
+            font-size: 14px; /* Reducido de 18px */
+            color: black;
+            background-color: #FFD94D;
+            border-radius: 5px;
+            text-shadow: 1px 1px 0 white, -1px -1px 0 white, 
+                        1px -1px 0 white, -1px 1px 0 white;
+        }
+        .celda-dolar {
+            background-color: green;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="tituloEditable" class="titulo" value="El Sueño Dorado">
+    <div class="buscador">
+        <input type="number" id="numeroBuscar" placeholder="Número de cartón" min="1" max="200000">
+        <button onclick="mostrarCarton()">Buscar</button>
+    </div>
+    <div id="cartonContainer"></div>
+
+    <script>
+        // Cargar el título desde localStorage o usar el predeterminado
+        const tituloEditable = document.getElementById('tituloEditable');
+        const tituloGuardado = localStorage.getItem('tituloPersonalizado');
+        if (tituloGuardado) {
+            tituloEditable.value = tituloGuardado;
+        } else {
+            tituloEditable.value = "El Sueño Dorado";
+        }
+
+        // Guardar el título en localStorage al editar
+        tituloEditable.addEventListener('input', function() {
+            localStorage.setItem('tituloPersonalizado', this.value);
+        });
+
+        // Generador pseudoaleatorio determinístico
+        function seededRandom(seed) {
+            let x = Math.sin(seed + 12345) * 10000;
+            return x - Math.floor(x);
+        }
+
+        // Obtener números únicos de un rango con semilla
+        function getUniqueNumbersFromRange(min, max, count, seedBase) {
+            const numbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+            const result = [];
+            let seed = seedBase;
+
+            for (let i = 0; i < count; i++) {
+                seed += 1;
+                const index = Math.floor(seededRandom(seed) * numbers.length);
+                result.push(numbers.splice(index, 1)[0]);
+            }
+
+            return result;
+        }
+
+        // Generar un cartón basado en su ID
+        function generarCarton(id) {
+            const carton = [];
+            const rangos = [
+                { min: 1, max: 15 },  // B
+                { min: 16, max: 30 }, // I
+                { min: 31, max: 45 }, // N
+                { min: 46, max: 60 }, // G
+                { min: 61, max: 75 }  // O
+            ];
+
+            for (let col = 0; col < 5; col++) {
+                const seedBase = id * 5 + col * 1000;
+                const numbers = getUniqueNumbersFromRange(rangos[col].min, rangos[col].max, 5, seedBase);
+                carton.push(numbers);
+            }
+
+            carton[2][2] = '$'; // Centro libre
+            return { carton };
+        }
+
+        // Mostrar el cartón en pantalla
+        function mostrarCarton() {
+            const numeroBuscar = document.getElementById('numeroBuscar').value.trim();
+            const index = parseInt(numeroBuscar);
+
+            if (!numeroBuscar || index < 1 || index > 200000) {
+                alert('Número de cartón inválido. Debe estar entre 1 y 200,000.');
+                return;
+            }
+
+            const cartonData = generarCarton(index);
+            const cartonContainer = document.getElementById('cartonContainer');
+            cartonContainer.innerHTML = '';
+
+            const divCarton = document.createElement('div');
+            divCarton.className = 'carton';
+
+            const tituloCarton = document.createElement('div');
+            tituloCarton.className = 'titulo-carton';
+            tituloCarton.textContent = `Cartón N°${index}`;
+            divCarton.appendChild(tituloCarton);
+
+            const encabezado = document.createElement('div');
+            encabezado.className = 'encabezado';
+            ['B', 'I', 'N', 'G', 'O'].forEach(letra => {
+                const letraDiv = document.createElement('div');
+                letraDiv.className = 'letra';
+                letraDiv.textContent = letra;
+                encabezado.appendChild(letraDiv);
+            });
+            divCarton.appendChild(encabezado);
+
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const celda = document.createElement('div');
+                    celda.className = 'celda';
+                    celda.textContent = cartonData.carton[col][row];
+                    if (cartonData.carton[col][row] === '$') {
+                        celda.classList.add('celda-dolar');
+                    }
+                    divCarton.appendChild(celda);
+                }
+            }
+
+            cartonContainer.appendChild(divCarton);
+        }
+    </script>
+</body>
+</html>
